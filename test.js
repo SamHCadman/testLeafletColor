@@ -38,7 +38,6 @@ var Drawer = (function() {
                 weight: 6,
                 vehicle_id: _id
             });
-        nl.on('click', this.traceOnClick);
         return nl;
     };
     Drawer.prototype.measure = function (lat1, lon1, lat2, lon2) {
