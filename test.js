@@ -30,15 +30,13 @@ var Drawer = (function() {
         return null;
     };
     Drawer.prototype.newLayer = function (_id, _color) {
-        var nl = L.polyline([],
-            {
+        return L.polyline([], {
                 color: _color,
                 opacity: 0.7,
                 stroke: true,
                 weight: 6,
                 vehicle_id: _id
             });
-        return nl;
     };
     Drawer.prototype.measure = function (lat1, lon1, lat2, lon2) {
         var R = 6378.137;
@@ -67,30 +65,28 @@ var Drawer = (function() {
             //check existance of a layerGroup for this vehicle
             vehicleLayer = this.getVehicleLayer(id);
             if(vehicleLayer == null){
-                vehicleLayer = L.layerGroup([]);
+                vehicleLayer = L.geoJson([]);
                 L.Util.setOptions(vehicleLayer, {vehicle_id: id});
                 vehicleLayer.addLayer(this.newLayer(id, _data['color']));
                 this.layer_group_real_time.addLayer(vehicleLayer);
             }
 
             idAllLayers = vehicleLayer.getLayers();
-            currentLayerLatLng = idAllLayers[idAllLayers.length-1].getLatLngs();
+            currentLayerLatLng = idAllLayers[idAllLayers.length-1];
             if (current_lat != null && current_lon != null) {
                 if (this.previousDataPoints[id] != null && this.previousColor[id] != null) {
                     oldDataPoint = this.previousDataPoints[id]['data'];
                     delta = this.measure(current_lat, current_lon, oldDataPoint['lat'], oldDataPoint['lon']);
                     if (delta > this.MAX_DIST || _data['color'] != this.previousColor[id]) { // same thing whatever the color test
                         if (delta < this.MAX_DIST){
-                            currentLayerLatLng.push(L.latLng(current_lat, current_lon));
+                            currentLayerLatLng.addLatLng([current_lat, current_lon]);
                         }
                         vehicleLayer.addLayer(this.newLayer(id, _data['color']));
                         idAllLayers = vehicleLayer.getLayers();
-                        currentLayerLatLng = idAllLayers[idAllLayers.length - 1].getLatLngs();
+                        currentLayerLatLng = idAllLayers[idAllLayers.length - 1];
                     }
                 }
-                currentLayerLatLng.push(L.latLng(current_lat, current_lon));
-                idAllLayers[idAllLayers.length - 1].setLatLngs(currentLayerLatLng);
-
+                currentLayerLatLng.addLatLng([current_lat, current_lon]);
                 this.previousDataPoints[id] = _data; // save the data-point as the new old one
                 this.previousColor[id] = _data['color'];
             }
